@@ -3,13 +3,17 @@ variable "repository_names" {
 }
 
 output "patient_service_repository_url" {
-  value = aws_ecr_repository.services["patient-service"].repository_url
+  value = aws_ecr_repository.services["patientservice"].repository_url
 }
 
 output "appointment_service_repository_url" {
-  value = aws_ecr_repository.services["appointment-service"].repository_url
+  value = aws_ecr_repository.services["appointmentservice"].repository_url
 }
 
 output "frontend_repository_url" {
-  value = aws_ecr_repository.services["frontend"].repository_url
+  value = aws_ecr_repository.services["patientportal"].repository_url
+}
+
+output "patient_portal_repository_url" {
+  value = aws_ecr_repository.services["patientportal"].repository_url
 }

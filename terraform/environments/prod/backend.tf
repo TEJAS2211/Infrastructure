@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = "scorpiobackendterraform"
+    bucket         = "Hospital-Management-TF-STATE"
     key            = "prod/terraform.tfstate"
-    region         = "ap-south-1"
+    region         = "us-east-1"
     dynamodb_table = "terraform-locks"
     encrypt        = true
   }

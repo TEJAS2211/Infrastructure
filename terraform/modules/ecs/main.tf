@@ -1,4 +1,8 @@
 # ECS Task Definition
+locals {
+  alb_name = "${substr(var.app_name, 0, 10)}-${substr(var.service_name, 0, 10)}-alb"
+}
+
 resource "aws_ecs_task_definition" "service" {
   family                   = var.service_name
   network_mode             = "awsvpc"
@@ -26,7 +30,7 @@ resource "aws_ecs_task_definition" "service" {
       }
     }
     healthCheck = {
-      command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/health || exit 1"]
+      command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/api/v1/health || exit 1"]
       interval    = 30
       timeout     = 5
       retries     = 3
@@ -71,18 +75,18 @@ resource "aws_lb_target_group" "service" {
     unhealthy_threshold = 2
     timeout             = 3
     interval            = 30
-    path                = "/health"
+    path                = "/api/v1/health"
     matcher             = "200"
   }
 }
 
 # Application Load Balancer
 resource "aws_lb" "main" {
-  name               = "${var.app_name}-alb"
+  name               = local.alb_name
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]
-  subnets            = var.private_subnet_ids
+  subnets            = var.public_subnet_ids
 }
 
 resource "aws_lb_listener" "service" {
