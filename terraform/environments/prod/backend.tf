@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket  = "Hospital-Management-TF-STATE"
+    bucket  = "hospital-management"
     key     = "prod/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
