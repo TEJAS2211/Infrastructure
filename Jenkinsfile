@@ -50,7 +50,10 @@ pipeline {
           sh 'terraform -chdir=terraform/environments/prod destroy -auto-approve -refresh=false -lock=false'
         }
       }
+      cleanWs()
     }
-    always { cleanWs() }
+    success { cleanWs() }
+    unstable { cleanWs() }
+    aborted { cleanWs() }
   }
 }

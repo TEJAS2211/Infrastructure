@@ -2,7 +2,6 @@ resource "aws_db_instance" "mysql" {
   identifier        = "${var.app_name}-${var.environment}-mysql"
   allocated_storage = var.allocated_storage
   engine            = "mysql"
-  engine_version    = var.engine_version
   instance_class    = var.instance_class
   db_name           = "hospitaldb"
   username          = "admin"
