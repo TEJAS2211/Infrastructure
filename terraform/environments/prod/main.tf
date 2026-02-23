@@ -63,7 +63,7 @@ module "ecs_patient_service" {
   alb_security_group_id = module.networking.alb_security_group_id
   ecs_security_group_id = module.networking.ecs_security_group_id
 
-  ecr_repository_url = module.ecr.patient_service_repository_url
+  ecr_repository_url = module.ecr.repository_urls["patient"]
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
@@ -103,7 +103,8 @@ module "ecs_appointment_service" {
   alb_security_group_id = module.networking.alb_security_group_id
   ecs_security_group_id = module.networking.ecs_security_group_id
 
-  ecr_repository_url = module.ecr.appointment_service_repository_url
+  
+  ecr_repository_url = module.ecr.repository_urls["appointment"]
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
@@ -143,7 +144,7 @@ module "ecs_patient_portal" {
   alb_security_group_id = module.networking.alb_security_group_id
   ecs_security_group_id = module.networking.ecs_security_group_id
 
-  ecr_repository_url = module.ecr.patient_portal_repository_url
+  ecr_repository_url = module.ecr.repository_urls["portal"]
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
