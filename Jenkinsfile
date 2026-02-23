@@ -1,25 +1,43 @@
 pipeline {
   agent any
+
   parameters {
     choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select apply or destroy')
   }
+
   environment {
-    TF_VERSION = '1.6.0'
     AWS_REGION = 'us-east-1'
+    TF_IN_AUTOMATION = 'true'
   }
+
   stages {
-    stage('Checkout') { steps { checkout scm } }
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
     stage('Terraform Init') {
       steps {
-        sh 'terraform -chdir=terraform/environments/prod init'
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+          sh '''
+            terraform -version
+            terraform -chdir=terraform/environments/prod init -upgrade
+          '''
+        }
       }
     }
+
     stage('Terraform Validate') {
       steps {
-        sh 'terraform -chdir=terraform/environments/prod validate'
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+          sh 'terraform -chdir=terraform/environments/prod validate'
+        }
       }
     }
-    stage('Checkov Scan') {
+
+    stage('Checkov Scan (IaC Security)') {
       steps {
         sh '''
           if command -v checkov >/dev/null 2>&1; then
@@ -31,11 +49,15 @@ pipeline {
         '''
       }
     }
+
     stage('Terraform Plan') {
       steps {
-        sh 'terraform -chdir=terraform/environments/prod plan -out=tfplan'
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+          sh 'terraform -chdir=terraform/environments/prod plan -out=tfplan'
+        }
       }
     }
+
     stage('Terraform Apply') {
       when {
         expression { params.ACTION == 'apply' }
@@ -45,24 +67,32 @@ pipeline {
         script {
           env.TF_APPLY_RAN = 'true'
         }
-        sh 'terraform -chdir=terraform/environments/prod apply -auto-approve tfplan'
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+          sh 'terraform -chdir=terraform/environments/prod apply -auto-approve tfplan'
+        }
       }
     }
+
     stage('Force Destroy (Manual)') {
       when {
         expression { params.ACTION == 'destroy' }
       }
       steps {
         input 'Force destroy ALL infrastructure?'
-        sh 'terraform -chdir=terraform/environments/prod destroy -auto-approve -refresh=false -lock=false'
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+          sh 'terraform -chdir=terraform/environments/prod destroy -auto-approve'
+        }
       }
     }
   }
+
   post {
     failure {
       script {
         if (env.TF_APPLY_RAN == 'true') {
-          sh 'terraform -chdir=terraform/environments/prod destroy -auto-approve -refresh=false -lock=false'
+          withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+            sh 'terraform -chdir=terraform/environments/prod destroy -auto-approve || true'
+          }
         }
       }
       cleanWs()
