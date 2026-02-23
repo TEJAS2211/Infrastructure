@@ -17,12 +17,9 @@ module "ecr" {
   source = "../../modules/ecr"
 
   repository_names = [
-    "patientservice",
-    "appointmentservice",
-    "patientportal",
-    "snapshot/patientservice",
-    "snapshot/appointmentservice",
-    "snapshot/patientportal"
+    "patient",
+    "appointment",
+    "portal"
   ]
 }
 
