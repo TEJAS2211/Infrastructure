@@ -16,6 +16,36 @@ variable "app_name" {
   default     = "hospital-management"
 }
 
+# ---------------- VPC (MATCHES YOUR ACTUAL AWS VPC) ----------------
+variable "existing_vpc_id" {
+  description = "Use an existing VPC by specifying its ID"
+  type        = string
+  default     = "vpc-07e97883803762ed5"
+}
+
+# Public subnets (for ALB)
+variable "public_subnet_ids" {
+  description = "Public subnet IDs (ALB will be placed here)"
+  type        = list(string)
+  default     = [
+    "subnet-09e87e6712a952ec5",
+    "subnet-0249356070b523f11",
+    "subnet-01b2494e2f4f1e52c"
+  ]
+}
+
+# Private subnets (ECS + RDS will run here)
+variable "private_subnet_ids" {
+  description = "Private subnet IDs (ECS Fargate + RDS)"
+  type        = list(string)
+  default     = [
+    "subnet-00929f9c61fa15541",
+    "subnet-0a9f746f063b173f7",
+    "subnet-03943aeccefecee34"
+  ]
+}
+
+# (Kept for module compatibility even if using existing VPC)
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
@@ -34,24 +64,7 @@ variable "public_subnet_cidrs" {
   default     = ["10.180.0.0/20", "10.180.16.0/20", "10.180.32.0/20"]
 }
 
-variable "existing_vpc_id" {
-  description = "(Optional) Use an existing VPC by specifying its ID. Leave empty to create a new VPC."
-  type        = string
-  default     = "vpc-04c43f1e3f46e50f5"
-}
-
-variable "public_subnet_ids" {
-  description = "(Optional) List of existing public subnet IDs to use (in AZ order)"
-  type        = list(string)
-  default     = ["subnet-0ee8dd7c02b75b349", "subnet-0bf538da9d3f0040c", "subnet-04f718ecdfe67f77a"]
-}
-
-variable "private_subnet_ids" {
-  description = "(Optional) List of existing private subnet IDs to use (in AZ order)"
-  type        = list(string)
-  default     = ["subnet-0af4ff257380caf3f", "subnet-0e04c326304dad454", "subnet-07c3eadb68cb75f7f"]
-}
-
+# ---------------- ECS (ORIGINAL SCALE: 6 FARGATE TASKS) ----------------
 variable "ecs_task_cpu" {
   description = "ECS task CPU"
   type        = string
@@ -64,42 +77,49 @@ variable "ecs_task_memory" {
   default     = "512"
 }
 
+# 3 services × 2 tasks = 6 Fargate tasks (as original architecture)
 variable "ecs_service_desired_count" {
-  description = "Desired number of ECS tasks"
+  description = "Desired number of ECS tasks per service"
   type        = number
   default     = 2
 }
 
+# ---------------- RDS (ORIGINAL PRODUCTION CONFIG) ----------------
 variable "db_engine_version" {
   description = "MySQL engine version"
   type        = string
   default     = "8.0.35"
 }
 
+# Original size (NOT free tier)
 variable "db_instance_class" {
   description = "RDS instance class"
   type        = string
   default     = "db.t3.small"
 }
 
+# Original storage (100 GB)
 variable "db_allocated_storage" {
   description = "RDS allocated storage (GB)"
   type        = number
   default     = 100
 }
 
+# Original backup retention
 variable "db_backup_retention_period" {
   description = "RDS backup retention period (days)"
   type        = number
   default     = 30
 }
 
+# ---------------- MONITORING ----------------
 variable "enable_monitoring" {
-  description = "Enable CloudWatch monitoring"
+  description = "Enable CloudWatch Container Insights"
   type        = bool
   default     = true
 }
 
+# ---------------- CRITICAL: ECS EXECUTION ROLE ----------------
 variable "shared_execution_role_arn" {
   description = "Shared IAM role ARN used for ECS task execution and task role"
   type        = string
