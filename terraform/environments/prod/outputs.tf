@@ -6,16 +6,12 @@ output "rds_endpoint" {
   value = module.rds.endpoint
 }
 
-output "patient_service_ecr" {
-  value = module.ecr.patient_service_repository_url
-}
-
-output "appointment_service_ecr" {
-  value = module.ecr.appointment_service_repository_url
-}
-
-output "patient_portal_ecr" {
-  value = module.ecr.patient_portal_repository_url
+output "ecr_repositories" {
+  value = {
+    patient      = "839690183795.dkr.ecr.us-east-1.amazonaws.com/patient"
+    appointment  = "839690183795.dkr.ecr.us-east-1.amazonaws.com/appointment"
+    portal       = "839690183795.dkr.ecr.us-east-1.amazonaws.com/portal"
+  }
 }
 
 output "shared_alb_dns" {
