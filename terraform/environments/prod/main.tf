@@ -12,16 +12,6 @@ module "networking" {
   private_subnet_ids   = var.private_subnet_ids
 }
 
-# ECR Repositories
-module "ecr" {
-  source = "../../modules/ecr"
-
-  repository_names = [
-    "patient",
-    "appointment",
-    "portal"
-  ]
-}
 
 # Secrets Manager
 module "secrets" {
@@ -63,7 +53,7 @@ module "ecs_patient_service" {
   alb_security_group_id = module.networking.alb_security_group_id
   ecs_security_group_id = module.networking.ecs_security_group_id
 
-  ecr_repository_url = module.ecr.repository_urls["patient"]
+  ecr_repository_url = "839690183795.dkr.ecr.us-east-1.amazonaws.com/patient"
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
@@ -104,7 +94,7 @@ module "ecs_appointment_service" {
   ecs_security_group_id = module.networking.ecs_security_group_id
 
   
-  ecr_repository_url = module.ecr.repository_urls["appointment"]
+  ecr_repository_url = "839690183795.dkr.ecr.us-east-1.amazonaws.com/appointment"
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
@@ -144,7 +134,7 @@ module "ecs_patient_portal" {
   alb_security_group_id = module.networking.alb_security_group_id
   ecs_security_group_id = module.networking.ecs_security_group_id
 
-  ecr_repository_url = module.ecr.repository_urls["portal"]
+  ecr_repository_url = "839690183795.dkr.ecr.us-east-1.amazonaws.com/portal"
   task_cpu           = var.ecs_task_cpu
   task_memory        = var.ecs_task_memory
   desired_count      = var.ecs_service_desired_count
